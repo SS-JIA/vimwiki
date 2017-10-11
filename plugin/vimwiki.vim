@@ -397,7 +397,7 @@ call s:default('diary_months',
       \ 10: 'October', 11: 'November', 12: 'December'
       \ })
 
-call s:default('map_prefix', '<Leader>w')
+call s:default('map_prefix', '<Leader>v')
 
 call s:default('current_idx', 0)
 
