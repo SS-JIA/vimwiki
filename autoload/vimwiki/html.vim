@@ -812,6 +812,25 @@ function! s:process_tag_pre(line, pre) "{{{
   return [processed, lines, pre]
 endfunction "}}}
 
+function! s:process_tag_opendiv(line)
+  let lines = []
+  let processed = 0
+  if a:line =~# '^\[\[$'
+    let class = matchstr(a:line, '\[\[\zs.*$')
+    if class != ""
+      call add(lines, "<div ".class.">")
+    else
+      call add(lines, "<div class=\"hidden\">")
+    endif
+    let processed = 1
+  endif
+  if a:line =~# '^\]\]$'
+    call add(lines, '</div>')
+    let processed = 1
+  endif
+  return [processed, lines]
+endfunction
+
 function! s:process_tag_math(line, math) "{{{
   " math is the list of [is_in_math, indent_of_math]
   let lines = []
@@ -1168,7 +1187,7 @@ function! s:parse_line(line, state) " {{{
   let line = s:safe_html_line(a:line)
 
   let processed = 0
-
+  
   " pres "{{{
   if !processed
     let [processed, lines, state.pre] = s:process_tag_pre(line, state.pre)
@@ -1176,6 +1195,9 @@ function! s:parse_line(line, state) " {{{
     " if processed && len(state.lists)
       " call s:close_tag_list(state.lists, lines)
     " endif
+    if !processed
+      let [processed, lines] = s:process_tag_opendiv(line)
+    endif
     if !processed
       let [processed, lines, state.math] = s:process_tag_math(line, state.math)
     endif
